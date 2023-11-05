@@ -207,6 +207,19 @@ app.post("/webhooks", async (req,res)=>{
             
         }
 
+        if(event.type === "charge:delayed"){
+            console.log("Charge delayed");
+            let amount = event.data.pricing.local.amount;
+            let userId = event.data.metadata.user_id;
+            let notification = {title: "Payment delayed",
+                                notification: `The payment with ${amount} USD has been delayed.`
+                                }
+            const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
+            db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
+                if(err) res.status(500).json({error: err})
+            });
+        }
+
         if(event.type === "charge:created"){
             console.log("Charge created");
             let amount = event.data.pricing.local.amount;
@@ -222,6 +235,7 @@ app.post("/webhooks", async (req,res)=>{
         }
         res.sendStatus(200);
     }catch(err){
+        console.log("no no");   
         res.status(500).json({
             error: err
         })
