@@ -20,7 +20,7 @@ var Client = coinbase.Client;
 var resources = coinbase.resources;
 var Webhook = coinbase.Webhook;
 
-Client.init(process.env.AWS_CLIENT);
+Client.init(process.env.COINBASE_CLIENT);
 
 
 const app = express();
@@ -147,6 +147,7 @@ app.post('/upload_profile_image_new', upload.single('newimage'), async (req, res
 
 
 
+
 //Checout
 app.post("/checout_balance",async(req,res)=>{
     const amount = req.body.Price;
@@ -162,11 +163,12 @@ app.post("/checout_balance",async(req,res)=>{
             pricing_type: "fixed_price",
             metadata:{
                 user_id: req.session.user.Id,
+                price: amount
             },
         });
-        res.send({charged:true,message: charge})
+        return res.send({charged:true,message: charge})
     } catch (err) {
-        res.send({charged:false})
+        return res.send({charged:false})
     }
     }
 }) 
@@ -177,11 +179,10 @@ app.post("/webhooks", async (req,res)=>{
         const event = Webhook.verifyEventBody(
             JSON.stringify(req.body),
             req.headers['x-cc-webhook-signature'],
-            "875c4ddb-7b79-400c-96b6-af15b8354728"
+            process.env.COINBASE_WEBHOOK_SECRET
         )
         if(event.type === "charge:confirmed"){
-            console.log("Charge confirmed");
-            let amount = event.data.pricing.local.amount;
+            let amount = event.data.metadata.price;
             let userId = event.data.metadata.user_id;
             let notification = {title: "Payment successfully received",
                                 notification: `The payment you made with ${amount} USD has been successfully added to your wallet.`
@@ -194,8 +195,7 @@ app.post("/webhooks", async (req,res)=>{
         }
 
         if(event.type === "charge:failed"){
-            console.log("Charge failed");
-            let amount = event.data.pricing.local.amount;
+            let amount = event.data.metadata.price;
             let userId = event.data.metadata.user_id;
             let notification = {title: "Payment failed",
                                 notification: `The payment you made with ${amount} USD has been failed, please try again or call support for any issues.`
@@ -206,37 +206,8 @@ app.post("/webhooks", async (req,res)=>{
             });
             
         }
-
-        if(event.type === "charge:delayed"){
-            console.log("Charge delayed");
-            let amount = event.data.pricing.local.amount;
-            let userId = event.data.metadata.user_id;
-            let notification = {title: "Payment delayed",
-                                notification: `The payment with ${amount} USD has been delayed.`
-                                }
-            const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
-            db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
-                if(err) return res.status(500).json({error: err})
-            });
-        }
-
-        if(event.type === "charge:created"){
-            console.log("Charge created");
-            let amount = event.data.pricing.local.amount;
-            let userId = event.data.metadata.user_id;
-            let notification = {title: "Payment created",
-                                notification: `The payment with ${amount} USD has been created.`
-                                }
-            const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
-            db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
-                if(err) return res.status(500).json({error: err})
-            });
-            
-        }
-        console.log(event)
         return res.sendStatus(200);
     }catch(err){
-        console.log(err);   
         return res.status(500).json({
             error: err
         })
