@@ -188,7 +188,7 @@ app.post("/webhooks", async (req,res)=>{
                                 }
             const sql = "UPDATE users SET Balance = Balance + ? WHERE Id = ? ; INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?) ; INSERT INTO `payments`(`idUser`, `Type`, `paymentPrice`) VALUES (?,?,?)"
             db.query(sql,[amount,userId, userId,notification.title,notification.notification, userId,"Wallet",amount],(err,data)=>{
-                if(err) res.status(500).json({error: err})
+                if(err) return res.status(500).json({error: err})
             });
             
         }
@@ -202,7 +202,7 @@ app.post("/webhooks", async (req,res)=>{
                                 }
             const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
             db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
-                if(err) res.status(500).json({error: err})
+                if(err) return res.status(500).json({error: err})
             });
             
         }
@@ -216,7 +216,7 @@ app.post("/webhooks", async (req,res)=>{
                                 }
             const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
             db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
-                if(err) res.status(500).json({error: err})
+                if(err) return res.status(500).json({error: err})
             });
         }
 
@@ -229,15 +229,15 @@ app.post("/webhooks", async (req,res)=>{
                                 }
             const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
             db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
-                if(err) res.status(500).json({error: err})
+                if(err) return res.status(500).json({error: err})
             });
             
         }
         console.log(event)
-        res.sendStatus(200);
+        return res.sendStatus(200);
     }catch(err){
         console.log(err);   
-        res.status(500).json({
+        return res.status(500).json({
             error: err
         })
     }
