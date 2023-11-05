@@ -175,7 +175,7 @@ app.post("/checout_balance",async(req,res)=>{
 app.post("/webhooks", async (req,res)=>{
     try{
         const event = Webhook.verifyEventBody(
-            req.rawBody,
+            JSON.stringify(req.body),
             req.headers["X-CC-Webhook-Signature"],
             "875c4ddb-7b79-400c-96b6-af15b8354728"
         )
