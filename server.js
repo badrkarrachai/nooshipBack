@@ -189,7 +189,7 @@ app.post("/webhooks", async (req,res)=>{
             db.query(sql,[amount,userId, userId,notification.title,notification.notification, userId,"Wallet",amount],(err,data)=>{
                 if(err) res.status(500).json({error: err})
             });
-            res.sendStatus(200);
+            
         }
 
         if(event.type === "charge:failed"){
@@ -202,8 +202,22 @@ app.post("/webhooks", async (req,res)=>{
             db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
                 if(err) res.status(500).json({error: err})
             });
-            res.sendStatus(200);
+            
         }
+
+        if(event.type === "charge:created"){
+            let amount = event.data.pricing.local.amount;
+            let userId = event.data.metadata.user_id;
+            let notification = {title: "Payment created",
+                                notification: `The payment with ${amount} USD has been created.`
+                                }
+            const sql = "INSERT INTO `notifications`(`IdUser`, `TitleNotification`, `Notification`) VALUES (?,?,?)"
+            db.query(sql,[userId,notification.title,notification.notification],(err,data)=>{
+                if(err) res.status(500).json({error: err})
+            });
+            
+        }
+        res.sendStatus(200);
     }catch(err){
         res.status(500).json({
             error: err
