@@ -176,7 +176,7 @@ app.post("/webhooks", async (req,res)=>{
     try{
         const event = Webhook.verifyEventBody(
             JSON.stringify(req.body),
-            req.headers["X-CC-Webhook-Signature"],
+            req.headers['x-cc-webhook-signature'],
             "875c4ddb-7b79-400c-96b6-af15b8354728"
         )
         if(event.type === "charge:confirmed"){
@@ -233,6 +233,7 @@ app.post("/webhooks", async (req,res)=>{
             });
             
         }
+        console.log(event)
         res.sendStatus(200);
     }catch(err){
         console.log(err);   
