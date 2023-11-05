@@ -180,6 +180,7 @@ app.post("/webhooks", async (req,res)=>{
             "875c4ddb-7b79-400c-96b6-af15b8354728"
         )
         if(event.type === "charge:confirmed"){
+            console.log("Charge confirmed");
             let amount = event.data.pricing.local.amount;
             let userId = event.data.metadata.user_id;
             let notification = {title: "Payment successfully received",
@@ -193,6 +194,7 @@ app.post("/webhooks", async (req,res)=>{
         }
 
         if(event.type === "charge:failed"){
+            console.log("Charge failed");
             let amount = event.data.pricing.local.amount;
             let userId = event.data.metadata.user_id;
             let notification = {title: "Payment failed",
@@ -206,6 +208,7 @@ app.post("/webhooks", async (req,res)=>{
         }
 
         if(event.type === "charge:created"){
+            console.log("Charge created");
             let amount = event.data.pricing.local.amount;
             let userId = event.data.metadata.user_id;
             let notification = {title: "Payment created",
