@@ -235,7 +235,7 @@ app.post("/webhooks", async (req,res)=>{
         }
         res.sendStatus(200);
     }catch(err){
-        console.log("no no");   
+        console.log(err);   
         res.status(500).json({
             error: err
         })
